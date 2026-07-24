@@ -5,3 +5,4 @@ macos/Qt653-macos.tar.xz filter=lfs diff=lfs merge=lfs -text
 macos/Qt6.5.3-static.tar.xz filter=lfs diff=lfs merge=lfs -text
 macos/Qt6.5.3-static-arm64.tar.xz filter=lfs diff=lfs merge=lfs -text
 macos/Qt6.5.3-static-x86_64.tar.xz filter=lfs diff=lfs merge=lfs -text
+ubuntu/Qt6.5.3-static-ubuntu2204.tar.xz filter=lfs diff=lfs merge=lfs -text
