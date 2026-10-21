@@ -1,0 +1,35 @@
+name: Build Qt 6.8.5 (macOS) Apple Silicon.
+
+on: workflow_dispatch      # manual trigger, e.g. from the Actions tab
+
+jobs:
+  build-qt:
+    runs-on: macos-14      
+    timeout-minutes: 360 
+
+    env:
+      INSTALL_DIR: ${{ github.workspace }}/Qt6.8.5-silicon
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      # Cache the downloaded source tarball + extracted tree across runs
+      - name: Cache Qt source
+        uses: actions/cache@v4
+        with:
+          path: ~/qt-build
+          key: qt-src-6.8.5
+
+      - name: Build Qt
+        run: ./macos/build-qt-macos.sh
+        env:
+          INSTALL_DIR: ${{ env.INSTALL_DIR }}
+
+      # Upload the tarball of the build: $INSTALL_DIR.tar.xz
+      - name: Upload built Qt as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Qt 6.8.5 (Apple Silicon)
+          path: ${{ env.INSTALL_DIR }}.tar.xz
+          retention-days: 5
