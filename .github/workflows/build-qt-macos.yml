@@ -1,14 +1,24 @@
-name: Build Qt 6.8.5 (macOS) Apple Silicon.
+name: Build Qt 6.8.5 (macOS)
 
-on: workflow_dispatch      # manual trigger, e.g. from the Actions tab
+on:
+  workflow_dispatch:      # manual trigger, e.g. from the Actions tab
+    inputs:
+      runner:
+        description: Runner image (macos-14 = Apple Silicon, macos-15-intel = Intel)
+        type: choice
+        options:
+          - macos-14
+          - macos-15-intel
+        default: macos-14
 
 jobs:
   build-qt:
-    runs-on: macos-14      
+    runs-on: ${{ inputs.runner }}
     timeout-minutes: 360 
 
     env:
-      INSTALL_DIR: ${{ github.workspace }}/Qt6.8.5-silicon
+      ARCH: ${{ inputs.runner == 'macos-14' && 'silicon' || 'intel' }}
+      INSTALL_DIR: ${{ github.workspace }}/Qt6.8.5-${{ inputs.runner == 'macos-14' && 'silicon' || 'intel' }}
 
     steps:
       - name: Checkout repo
@@ -19,17 +29,15 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/qt-build
-          key: qt-src-6.8.5
+          key: qt-src-6.8.5-${{ env.ARCH }}
 
       - name: Build Qt
         run: ./macos/build-qt-macos.sh
-        env:
-          INSTALL_DIR: ${{ env.INSTALL_DIR }}
 
       # Upload the tarball of the build: $INSTALL_DIR.tar.xz
       - name: Upload built Qt as artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Qt 6.8.5 (Apple Silicon)
+          name: Qt 6.8.5 (${{ env.ARCH }})
           path: ${{ env.INSTALL_DIR }}.tar.xz
           retention-days: 5
