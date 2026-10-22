@@ -6,7 +6,7 @@
 #   ./build-qt-macos.sh
 #
 # Environment overrides:
-#   INSTALL_DIR  (default: $HOME/Qt6.8.5)
+#   INSTALL_DIR  (default: $HOME/Qt6.12.0)
 #   BUILD_DIR    (default: $HOME/qt-build)
 #   JOBS         (default: number of CPUs)
 
@@ -15,23 +15,22 @@ set -euo pipefail
 # ---------------------------------------------------------------------------
 # Config
 # ---------------------------------------------------------------------------
-INSTALL_DIR="${INSTALL_DIR:-$HOME/Qt6.8.5}" # default directory is $HOME
+INSTALL_DIR="${INSTALL_DIR:-$HOME/Qt6.12.0}" # default directory is $HOME
 BUILD_DIR="${BUILD_DIR:-$HOME/qt-build}"
 JOBS="${JOBS:-$(sysctl -n hw.ncpu)}"
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-SRC_TARBALL="qt-everywhere-opensource-src-6.8.5.tar.xz"
-SRC_URL="https://download.qt.io/archive/qt/6.8/6.8.5/single/$SRC_TARBALL"
-SRC_DIR="qt-everywhere-src-6.8.5"
+SRC_TARBALL="qt-everywhere-src-6.12.0.tar.xz"
+SRC_URL="https://download.qt.io/archive/qt/6.12/6.12.0/single/$SRC_TARBALL"
+SRC_DIR="qt-everywhere-src-6.12.0"
 
 # Modules to strip out before configuring (trims build time / unused deps)
 MODULES_TO_REMOVE=(
-  qtquick3d qtquick3dphysics qtquickeffectmaker qtgrpc qtscxml qtnetworkauth
-  qt5compat qt3d qtactiveqt qtcharts qtcoap qtconnectivity qtdatavis3d
-  qtlanguageserver qtlocation qtmqtt qtlottie qtmultimedia qtopcua
-  qtpositioning qtremoteobjects qtsensors qtserialbus qtserialport
-  qtvirtualkeyboard qtwayland qttools qtwebengine qtdoc qtspeech
-  qttranslations qtwebview qtwebchannel qtwebsockets qthttpserver
+  qtcoap qtlanguageserver qtquick3d qtwebsockets qtconnectivity qtlocation 
+  qtquick3dphysics qtspeech qtwebview qtdatavis3d qtlottie qtquickeffectmaker
+  qt3d qtmqtt qtquicktimeline qttasktree qt5compat qtdoc qtmultimedia 
+  qtremoteobjects qtactiveqt qtgraphs qtnetworkauth qtscxml qttranslations
+  qtgrpc qtopcua qtsensors qtvirtualkeyboard qtcanvaspainter qthttpserver qtopenapi           
+  qtserialbus qtwayland qtcharts qtpositioning qtserialport qtwebchannel
 )
 
 log() { printf '\n\033[1;34m==>\033[0m %s\n' "$1"; }
@@ -81,15 +80,6 @@ fi
 cd "$SRC_DIR"
 
 # ---------------------------------------------------------------------------
-# Patch: newer Apple clang needs <arm_acle.h> for __yield() on arm64
-# ---------------------------------------------------------------------------
-# YIELD_HDR="qtbase/src/corelib/thread/qyieldcpu.h"
-# if [[ -f "$YIELD_HDR" ]] && ! grep -q "arm_acle.h" "$YIELD_HDR"; then
-#   log "Patching $YIELD_HDR (include <arm_acle.h>)"
-#   perl -0pi -e 's|(#include <QtCore/qtconfigmacros.h>\n)|$1\n#if defined(__aarch64__) && defined(__has_include)\n#  if __has_include(<arm_acle.h>)\n#    include <arm_acle.h>\n#  endif\n#endif\n|' "$YIELD_HDR"
-# fi
-
-# ---------------------------------------------------------------------------
 # Trim unused modules
 # ---------------------------------------------------------------------------
 log "Removing unused modules"
@@ -124,4 +114,4 @@ cmake --install .
 log "Compressing $INSTALL_DIR"
 XZ_OPT='-9' tar -C "$(dirname "$INSTALL_DIR")" -cJf "$INSTALL_DIR.tar.xz" "$(basename "$INSTALL_DIR")"
 
-log "Done. Qt 6.8.5 tarball at: $INSTALL_DIR.tar.xz"
+log "Done. Qt 6.12.0 tarball at: $INSTALL_DIR.tar.xz"
