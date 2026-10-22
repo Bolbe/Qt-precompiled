@@ -3,5 +3,4 @@ ubuntu/Qt653-static-ubuntu2204.tar.xz filter=lfs diff=lfs merge=lfs -text
 windows/QtMingw64.7z filter=lfs diff=lfs merge=lfs -text
 macos/Qt653-macos.tar.xz filter=lfs diff=lfs merge=lfs -text
 macos/Qt6.5.3-static.tar.xz filter=lfs diff=lfs merge=lfs -text
-macos/Qt6.8.5-silicon.tar.xz filter=lfs diff=lfs merge=lfs -text
-macos/Qt6.8.5-intel.tar.xz filter=lfs diff=lfs merge=lfs -text
+macos/Silicon/Qt6.12.0.tar.xz filter=lfs diff=lfs merge=lfs -text
