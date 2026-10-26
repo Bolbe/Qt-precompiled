@@ -5,7 +5,8 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     wget \
     xz-utils \
     build-essential \
-    cmake \
+    ca-certificates \
+    ninja-build \
     libfontconfig1-dev \
     libfreetype6-dev \
     libx11* \
@@ -29,16 +30,28 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     libbz2-dev \
     && apt-get clean cache
 
-RUN wget -q https://download.qt.io/archive/qt/6.5/6.5.3/single/qt-everywhere-src-6.5.3.tar.xz
+ARG CMAKE_VERSION=3.31.6
+RUN ARCH=$(uname -m) \
+    && wget -q https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-linux-${ARCH}.tar.gz \
+    && tar xf cmake-${CMAKE_VERSION}-linux-${ARCH}.tar.gz --strip-components=1 -C /usr/local \
+    && rm cmake-${CMAKE_VERSION}-linux-${ARCH}.tar.gz \
+    && cmake --version
 
-RUN tar xf qt-everywhere-src-6.5.3.tar.xz \
-    && cd qt-everywhere-src-6.5.3 \
-    && rm -rf qtquickeffectmaker qtgrpc qtscxml qtnetworkauth qt5compat qt3d qtactiveqt qtcharts qtcoap qtconnectivity qtdatavis3d qtlanguageserver qtlocation qtmqtt qtlottie qtmultimedia qtopcua qtpositioning qtremoteobjects qtsensors qtserialbus qtserialport qtvirtualkeyboard qtwayland qttools qtwebengine qtdoc qtspeech qttranslations qtwebview qtwebchannel qtwebsockets qthttpserver \
+ARG BUILD_JOBS=4
+RUN wget -q https://download.qt.io/archive/qt/6.12/6.12.0/single/qt-everywhere-src-6.12.0.tar.xz \
+    && tar xf qt-everywhere-src-6.12.0.tar.xz \
+    && cd qt-everywhere-src-6.12.0 \
+    && rm -rf qtcoap qtlanguageserver qtquick3d qtwebsockets qtconnectivity qtlocation \
+    qtquick3dphysics qtspeech qtwebview qtdatavis3d qtlottie qtquickeffectmaker qt3d \
+    qtmqtt qtquicktimeline qttasktree qt5compat qtdoc qtmultimedia qtremoteobjects \
+    qtactiveqt qtgraphs qtnetworkauth qtscxml qttranslations qtgrpc qtopcua qtsensors \
+    qtvirtualkeyboard qtcanvaspainter qthttpserver qtopenapi \
+    qtserialbus qtwayland qtcharts qtpositioning qtserialport qtwebchannel \
     && ./configure \
         -opensource \
-        -release\ 
+        -release \
         -confirm-license \
-        -prefix /usr/local/Qt-6.5.3 \
+        -prefix /usr/local/Qt-6.12.0 \
         -nomake tests \
         -nomake examples \
         -no-icu \
@@ -47,31 +60,7 @@ RUN tar xf qt-everywhere-src-6.5.3.tar.xz \
         -xcb \
         -xcb-xlib \
         -bundled-xcb-xinput \
-    && cmake --build . -j4 \
+    && cmake --build . --parallel ${BUILD_JOBS} \
     && cmake --install . \
     && cd .. \
-    && rm -rf qt-everywhere-src-6.5.3 \
-    && mv /usr/local/Qt-6.5.3 /usr/local/Qt-6.5.3-dynamic  
-
-RUN tar xf qt-everywhere-src-6.5.3.tar.xz \
-    && cd qt-everywhere-src-6.5.3 \
-    && rm -rf qtquickeffectmaker qtgrpc qtscxml qtnetworkauth qt5compat qt3d qtactiveqt qtcharts qtcoap qtconnectivity qtdatavis3d qtlanguageserver qtlocation qtmqtt qtlottie qtmultimedia qtopcua qtpositioning qtremoteobjects qtsensors qtserialbus qtserialport qtvirtualkeyboard qtwayland qttools qtwebengine qtdoc qtspeech qttranslations qtwebview qtwebchannel qtwebsockets qthttpserver \
-    && ./configure \
-        -release \ 
-        -static \
-        -confirm-license \
-        -nomake tests \
-        -nomake examples \
-        -no-icu \
-        -no-dbus \
-        -sql-sqlite \
-        -xcb \
-        -xcb-xlib \
-        -bundled-xcb-xinput \
-    && cmake --build . -j4 \
-    && cmake --install . \
-    && cd .. \
-    && rm -rf qt-everywhere-src-6.5.3 \
-    && mv /usr/local/Qt-6.5.3 /usr/local/Qt-6.5.3-static
-    
-
+    && rm -rf qt-everywhere-src-6.12.0
